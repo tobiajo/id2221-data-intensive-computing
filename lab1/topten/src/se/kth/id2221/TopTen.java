@@ -24,7 +24,8 @@ public class TopTen {
         private TreeMap<Integer, Text> repToRecordMap = new TreeMap<Integer, Text>();
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            addParsedTorepToRecordMap(value, repToRecordMap);
+            // Add valid input.
+            addToRepToRecordMap(value, repToRecordMap);
 
             // If we have more than ten records, remove the one with the lowest reputation.
             if (repToRecordMap.size() > 10) {
@@ -47,7 +48,8 @@ public class TopTen {
 
         public void reduce(NullWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
             for (Text value : values) {
-                addParsedTorepToRecordMap(value, repToRecordMap);
+                // Add valid input.
+                addToRepToRecordMap(value, repToRecordMap);
 
                 // If we have more than ten records, remove the one with the lowest reputation.
                 if (repToRecordMap.size() > 10) {
@@ -62,7 +64,7 @@ public class TopTen {
         }
     }
 
-    private static void addParsedTorepToRecordMap(Text value, TreeMap<Integer, Text> repToRecordMap) {
+    private static void addToRepToRecordMap(Text value, TreeMap<Integer, Text> repToRecordMap) {
         Map<String, String> parsed = transformXmlToMap(value.toString());
         String userId = parsed.get("AccountId");
         String reputation = parsed.get("Reputation");
