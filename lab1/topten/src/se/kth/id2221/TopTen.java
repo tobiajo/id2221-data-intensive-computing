@@ -69,7 +69,7 @@ public class TopTen {
 
         // Add this record to our map with the reputation as the key
         if (isInteger(userId) && isInteger(reputation)) {
-            repToRecordMap.put(Integer.parseInt(reputation), value);
+            repToRecordMap.put(Integer.parseInt(reputation), new Text(value)); // deep copy!
         }
     }
 
