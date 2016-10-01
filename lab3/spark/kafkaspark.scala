@@ -20,7 +20,7 @@ object KafkaStreamAvg {
         // Create a local StreamingContext with two working thread and batch interval of 1 second.
         // The master requires 2 cores to prevent from a starvation scenario.
         val sparkConf = new SparkConf().setMaster("local[2]").setAppName("KafkaStreamAvg")
-        val ssc = new StreamingContext(sparkConf, Seconds(10))
+        val ssc = new StreamingContext(sparkConf, Seconds(1))
         ssc.checkpoint("checkpoint")
 
         // receiver-less approach
@@ -29,11 +29,11 @@ object KafkaStreamAvg {
         val values = messages.map(x => x._2)                                                        // extract value
         val pairs = values.map(x => x.split(",") match {case Array(s1, s2) => (s1, s2.toDouble)})   // String => (String, Double)
 
-        def mappingFunc(key: String, value: Option[Double], state: State[(Double, Long)]): Option[(String, Double)] = {
+        def mappingFunc(key: String, value: Option[Double], state: State[(Double, Long)]): (String, Double) = {
             val (prevSum, prevN) = state.getOption.getOrElse((0.0, 0L))
             val (sum, n) = (prevSum+value.get, prevN+1)
             state.update((sum, n))
-            Some(key, sum/n) // average
+            (key, sum/n) // average
         }
 
         val stateSpec = StateSpec.function(mappingFunc _)
